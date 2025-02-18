@@ -7,7 +7,7 @@ import logger from '@/utils/logger';
 import puppeteer from '@/utils/puppeteer';
 import { JSDOM } from 'jsdom';
 
-let disableConfigCookie = false;
+const disableConfigCookie = false;
 
 const getCookie = () => {
     if (!disableConfigCookie && Object.keys(config.bilibili.cookies).length > 0) {
@@ -45,11 +45,6 @@ const getCookie = () => {
         await browser.close();
         return cookieString;
     });
-};
-
-const clearCookie = () => {
-    cache.set('bili-cookie');
-    disableConfigCookie = true;
 };
 
 const getRenderData = (uid) => {
@@ -174,15 +169,15 @@ const getLiveIDFromShortID = (shortID) => {
     });
 };
 
-const getUsernameFromLiveID = (liveID) => {
-    const key = `bili-username-from-liveID-${liveID}`;
+const getUserInfoFromLiveID = (liveID) => {
+    const key = `bili-userinfo-from-liveID-${liveID}`;
     return cache.tryGet(key, async () => {
         const { data: nameResponse } = await got(`https://api.live.bilibili.com/live_user/v1/UserInfo/get_anchor_in_room?roomid=${liveID}`, {
             headers: {
                 Referer: `https://live.bilibili.com/${liveID}`,
             },
         });
-        return nameResponse.data.info.uname;
+        return nameResponse.data.info;
     });
 };
 
@@ -281,12 +276,11 @@ const getArticleDataFromCvid = async (cvid, uid) => {
 
 export default {
     getCookie,
-    clearCookie,
     getWbiVerifyString,
     getUsernameFromUID,
     getUsernameAndFaceFromUID,
     getLiveIDFromShortID,
-    getUsernameFromLiveID,
+    getUserInfoFromLiveID,
     getVideoNameFromId,
     getCidFromId,
     getAidFromBvid,
